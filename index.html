@@ -29,18 +29,6 @@
         select {
             padding: 10px;
             font-size: 1rem;
-            margin-right: 10px;
-        }
-        #loadButton {
-            padding: 10px 20px;
-            font-size: 1rem;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        #loadButton:hover {
-            background-color: #0056b3;
         }
         .iframe-container {
             flex-grow: 1;
@@ -62,7 +50,6 @@
                 <option value="https://thaalam.fm/">Thaalam</option>
                 <option value="https://tamil894fm.com/">TAMIL 894</option>
             </select>
-            <button id="loadButton">Load Page</button>
         </div>
         <div class="iframe-container">
             <iframe id="pageFrame" src=""></iframe>
@@ -71,16 +58,11 @@
 
     <script>
         const urlSelect = document.getElementById('urlSelect');
-        const loadButton = document.getElementById('loadButton');
         const pageFrame = document.getElementById('pageFrame');
 
-        loadButton.addEventListener('click', () => {
+        urlSelect.addEventListener('change', () => {
             const selectedUrl = urlSelect.value;
-            if (!selectedUrl) {
-                alert('Please select a page from the list');
-                return;
-            }
-            pageFrame.src = selectedUrl;
+            pageFrame.src = selectedUrl || '';
         });
     </script>
 </body>
