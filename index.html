@@ -32,6 +32,20 @@
         select {
             padding: 10px;
             font-size: 1rem;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
         .iframe-container {
             flex-grow: 1;
@@ -79,6 +93,8 @@
                 <option value="https://thaalam.fm/">Thaalam</option>
                 <option value="https://tamil894fm.com/">TAMIL 894</option>
             </select>
+            <button id="refreshButton">Refresh</button>
+            <button id="visitButton">Visit</button>
         </div>
         <div class="iframe-container">
             <iframe id="pageFrame" src=""></iframe>
@@ -88,8 +104,11 @@
 
     <script>
         const urlSelect = document.getElementById('urlSelect');
+        const refreshButton = document.getElementById('refreshButton');
+        const visitButton = document.getElementById('visitButton');
         const pageFrame = document.getElementById('pageFrame');
 
+        // Update iframe when a page is selected
         urlSelect.addEventListener('change', () => {
             const selectedUrl = urlSelect.value;
             if (selectedUrl) {
@@ -100,8 +119,28 @@
             }
         });
 
+        // Add loaded class for smooth scaling
         pageFrame.addEventListener('load', () => {
             pageFrame.classList.add('loaded');
+        });
+
+        // Refresh the iframe page
+        refreshButton.addEventListener('click', () => {
+            if (pageFrame.src) {
+                pageFrame.src = pageFrame.src;
+            } else {
+                alert('No page selected to refresh!');
+            }
+        });
+
+        // Open the selected page in a new tab
+        visitButton.addEventListener('click', () => {
+            const selectedUrl = urlSelect.value;
+            if (selectedUrl) {
+                window.open(selectedUrl, '_blank');
+            } else {
+                alert('No page selected to visit!');
+            }
         });
     </script>
 </body>
