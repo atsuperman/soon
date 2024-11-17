@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Iframe</title>
+    <title>Choose and View Page</title>
     <style>
         body {
             margin: 0;
@@ -21,20 +21,15 @@
             text-align: center;
             font-size: 1.5rem;
         }
-        .iframe-container {
-            flex-grow: 1;
-            position: relative;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        #urlInput {
-            width: 70%;
+        .url-selector {
             padding: 10px;
-            margin-right: 10px;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+        select {
+            padding: 10px;
             font-size: 1rem;
+            margin-right: 10px;
         }
         #loadButton {
             padding: 10px 20px;
@@ -47,13 +42,26 @@
         #loadButton:hover {
             background-color: #0056b3;
         }
+        .iframe-container {
+            flex-grow: 1;
+            position: relative;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">Enhanced Page Viewer</div>
-        <div style="padding: 10px; text-align: center;">
-            <input type="text" id="urlInput" placeholder="Enter URL (e.g., https://example.com)" />
+        <div class="header">Choose a Page to View</div>
+        <div class="url-selector">
+            <select id="urlSelect">
+                <option value="">-- Select a Page --</option>
+                <option value="https://thaalam.fm/">Thaalam</option>
+                <option value="https://tamil894fm.com/">TAMIL 894</option>
+            </select>
             <button id="loadButton">Load Page</button>
         </div>
         <div class="iframe-container">
@@ -62,17 +70,17 @@
     </div>
 
     <script>
-        const urlInput = document.getElementById('urlInput');
+        const urlSelect = document.getElementById('urlSelect');
         const loadButton = document.getElementById('loadButton');
         const pageFrame = document.getElementById('pageFrame');
 
         loadButton.addEventListener('click', () => {
-            const url = urlInput.value.trim();
-            if (!url) {
-                alert('Please enter a URL');
+            const selectedUrl = urlSelect.value;
+            if (!selectedUrl) {
+                alert('Please select a page from the list');
                 return;
             }
-            pageFrame.src = url;
+            pageFrame.src = selectedUrl;
         });
     </script>
 </body>
