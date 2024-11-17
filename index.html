@@ -1,15 +1,62 @@
 <!DOCTYPE html>
-<html lang="ta">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUPER TV Coming Soon</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Display External Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #content {
+            padding: 20px;
+            border: 1px solid #ddd;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        #urlInput {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        #fetchButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="message">SUPER TV விரைவில் உங்களை மகிழ்விக்க தயாராகி வருகிறது</div>
-    </div>
-    <script src="script.js"></script>
+    <h1>Load Page Content</h1>
+    <input type="text" id="urlInput" placeholder="Enter URL (e.g., https://example.com)" />
+    <button id="fetchButton">Fetch Page</button>
+    <div id="content">Content will appear here...</div>
+
+    <script>
+        const fetchButton = document.getElementById('fetchButton');
+        const urlInput = document.getElementById('urlInput');
+        const contentDiv = document.getElementById('content');
+
+        fetchButton.addEventListener('click', async () => {
+            const url = urlInput.value;
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Error fetching page: ${response.statusText}`);
+                }
+                const text = await response.text();
+                contentDiv.innerHTML = text;
+            } catch (error) {
+                contentDiv.textContent = `Failed to load content: ${error.message}`;
+            }
+        });
+    </script>
 </body>
-</html>
+    </html>
