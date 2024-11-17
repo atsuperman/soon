@@ -20,11 +20,14 @@
             color: white;
             text-align: center;
             font-size: 1.5rem;
+            border-bottom: 5px solid #0056b3;
         }
         .url-selector {
             padding: 10px;
             text-align: center;
             background-color: #f9f9f9;
+            border-bottom: 3px solid #ddd;
+            animation: borderGlow 2s infinite;
         }
         select {
             padding: 10px;
@@ -33,11 +36,37 @@
         .iframe-container {
             flex-grow: 1;
             position: relative;
+            background: linear-gradient(to bottom, #007bff, #0056b3);
+            padding: 10px;
+            box-sizing: border-box;
         }
         iframe {
             width: 100%;
             height: 100%;
             border: none;
+            background-color: white;
+            transform: scale(0.95);
+            transition: transform 0.5s ease-in-out;
+        }
+        iframe.loaded {
+            transform: scale(1);
+        }
+        .footer {
+            padding: 10px;
+            text-align: center;
+            background-color: #007bff;
+            color: white;
+            font-size: 1rem;
+            border-top: 5px solid #0056b3;
+            animation: borderGlow 2s infinite;
+        }
+        @keyframes borderGlow {
+            0%, 100% {
+                border-color: #ddd;
+            }
+            50% {
+                border-color: #007bff;
+            }
         }
     </style>
 </head>
@@ -54,6 +83,7 @@
         <div class="iframe-container">
             <iframe id="pageFrame" src=""></iframe>
         </div>
+        <div class="footer">Powered by Your Website</div>
     </div>
 
     <script>
@@ -62,7 +92,16 @@
 
         urlSelect.addEventListener('change', () => {
             const selectedUrl = urlSelect.value;
-            pageFrame.src = selectedUrl || '';
+            if (selectedUrl) {
+                pageFrame.classList.remove('loaded');
+                pageFrame.src = selectedUrl;
+            } else {
+                pageFrame.src = '';
+            }
+        });
+
+        pageFrame.addEventListener('load', () => {
+            pageFrame.classList.add('loaded');
         });
     </script>
 </body>
