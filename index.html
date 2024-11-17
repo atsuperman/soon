@@ -82,6 +82,13 @@
                 border-color: #007bff;
             }
         }
+        a {
+            color: white;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -99,11 +106,9 @@
             <iframe id="pageFrame" src=""></iframe>
         </div>
         <div class="footer">
-    Powered by 
-    <a href="https://fb.com/atSUPERMAN" target="_blank" style="color: #316FF6; text-decoration: none;">
-        atSUPERMAN
-    </a>
-</div>
+            Powered by 
+            <a href="https://fb.com/atSUPERMAN" target="_blank">atSUPERMAN</a>
+        </div>
     </div>
 
     <script>
@@ -112,14 +117,19 @@
         const visitButton = document.getElementById('visitButton');
         const pageFrame = document.getElementById('pageFrame');
 
-        // Update iframe when a page is selected
+        // Automatically load the first option on page load
+        window.addEventListener('load', () => {
+            const firstUrl = urlSelect.options[0].value; // Get the first option's URL
+            pageFrame.src = firstUrl;
+            urlSelect.value = firstUrl; // Set the select dropdown to the first option
+        });
+
+        // Update iframe when a new page is selected
         urlSelect.addEventListener('change', () => {
             const selectedUrl = urlSelect.value;
             if (selectedUrl) {
                 pageFrame.classList.remove('loaded');
                 pageFrame.src = selectedUrl;
-            } else {
-                pageFrame.src = '';
             }
         });
 
@@ -132,19 +142,13 @@
         refreshButton.addEventListener('click', () => {
             if (pageFrame.src) {
                 pageFrame.src = pageFrame.src;
-            } else {
-                alert('No page selected to refresh!');
             }
         });
 
         // Open the selected page in a new tab
         visitButton.addEventListener('click', () => {
             const selectedUrl = urlSelect.value;
-            if (selectedUrl) {
-                window.open(selectedUrl, '_blank');
-            } else {
-                alert('No page selected to visit!');
-            }
+            window.open(selectedUrl, '_blank');
         });
     </script>
 </body>
