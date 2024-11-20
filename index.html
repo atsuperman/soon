@@ -1,168 +1,88 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> 🎶 MUSIC TREAT 🎶 </title>
+    <title>Audio/Video Player</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         body {
-            margin: 0;
             font-family: Arial, sans-serif;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        .header {
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
+            margin: 20px;
             text-align: center;
-            font-size: 1.5rem;
-            border-bottom: 5px solid #0056b3;
         }
-        .url-selector {
-            padding: 10px;
-            text-align: center;
-            background-color: #f9f9f9;
-            border-bottom: 3px solid #ddd;
-            animation: borderGlow 2s infinite;
+        video {
+            width: 100%;
+            max-width: 600px;
+            display: none;
         }
-        select {
-            padding: 10px;
-            font-size: 1rem;
-            margin-right: 10px;
+        audio {
+            width: 100%;
+            max-width: 600px;
+            display: none;
         }
         button {
+            margin: 10px;
             padding: 10px 20px;
-            font-size: 1rem;
-            margin: 5px;
-            border: none;
             cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .iframe-container {
-            flex-grow: 1;
-            position: relative;
-            background: linear-gradient(to bottom, #007bff, #0056b3);
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background-color: white;
-            transform: scale(0.95);
-            transition: transform 0.5s ease-in-out;
-        }
-        iframe.loaded {
-            transform: scale(1);
-        }
-        .footer {
-            padding: 10px;
-            text-align: center;
-            background-color: #007bff;
-            color: white;
-            font-size: 1rem;
-            border-top: 5px solid #0056b3;
-            animation: borderGlow 2s infinite;
-        }
-        @keyframes borderGlow {
-            0%, 100% {
-                border-color: #ddd;
-            }
-            50% {
-                border-color: #007bff;
-            }
-        }
-        a {
-            color: white;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">🎵</div>
-        <div class="url-selector">
-            <select id="urlSelect">
-<option value="https://atsuperman.github.io/In/">SUPER RADIO</option>
-                <option value="https://thaalam.fm/">THAALAM FM ca</option>
-                <option value="https://tamil894fm.com/">TAMIL 894 uae</option>
-<option value="https://thaalam.ch/">THAALAM FM ch</option>
-<option value="https://shakthifm.com/">SHAKTHI FM sl</option>
-<option value="https://tamilfm.online/program/late-night-nanban/">TAMIZH FM sl</option>
-<option value="https://cmr24.net/#">CMR TAMIL HD ca</option>
-<option value="https://audio1.syok.my/raaga/">THR RAAGA my</option>
-<option value="https://www.melisten.sg/radio/oli-968">OLI 968 sg</option>
-<option value="https://www.sooriyanfm.lk/listenlive.php">SOORIYAN FM sl</option>
-<option value="https://www.hit967.ae/player/">HIT 967 uae [vpn]</option>
-<option value="https://www.dubai92.com/player/">DUBAI 92 uae [vpn]</option>
-<option value="https://www.city1016.ae/player/">CITY 1016 uae [vpn]</option>
-<option value="https://www.virginradiodubai.com/listen/">VIRGIN RADIO uae [vpn]</option>
-<option value="https://mirchi.in/radio/dubai">MIRCHI 1024 uae [vpn]</option>
-
-            </select>
-            <button id="refreshButton">Refresh</button>
-            <button id="visitButton">Visit</button>
-        </div>
-        <div class="iframe-container">
-            <iframe id="pageFrame" src=""></iframe>
-        </div>
-        <div class="footer">
-            Powered by 
-            <a href="https://fb.com/atSUPERMAN" target="_blank">atSUPERMAN</a>
-        </div>
-    </div>
-
+    <h1>Audio/Video Player</h1>
+    <video id="videoPlayer" controls></video>
+    <audio id="audioPlayer" controls></audio>
+    <br>
+    <button id="playAudio">Play Audio</button>
+    <button id="playVideo">Play Video</button>
     <script>
-        const urlSelect = document.getElementById('urlSelect');
-        const refreshButton = document.getElementById('refreshButton');
-        const visitButton = document.getElementById('visitButton');
-        const pageFrame = document.getElementById('pageFrame');
+        const videoSource = "https://d2q8p4pe5spbak.cloudfront.net/bpk-tv/9XM/9XM.isml/index.m3u8";
+        const videoPlayer = document.getElementById('videoPlayer');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playAudioBtn = document.getElementById('playAudio');
+        const playVideoBtn = document.getElementById('playVideo');
 
-        // Automatically load the first option on page load
-        window.addEventListener('load', () => {
-            const firstUrl = urlSelect.options[0].value; // Get the first option's URL
-            pageFrame.src = firstUrl;
-            urlSelect.value = firstUrl; // Set the select dropdown to the first option
-        });
+        // Function to initialize HLS playback
+        function initializeHLS(player, isAudioOnly) {
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(videoSource);
+                hls.attachMedia(player);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    player.play();
+                });
 
-        // Update iframe when a new page is selected
-        urlSelect.addEventListener('change', () => {
-            const selectedUrl = urlSelect.value;
-            if (selectedUrl) {
-                pageFrame.classList.remove('loaded');
-                pageFrame.src = selectedUrl;
+                // Disable video track if playing audio-only
+                hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+                    if (isAudioOnly) {
+                        hls.subtitleTrack = -1; // Disable subtitles
+                        hls.audioTrack = 0;    // Select the first audio track
+                        for (let i = 0; i < hls.levels.length; i++) {
+                            hls.levels[i].details.videoCodec = undefined;
+                        }
+                    }
+                });
+            } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+                player.src = videoSource;
+                player.play();
             }
+        }
+
+        // Event listeners
+        playAudioBtn.addEventListener('click', () => {
+            audioPlayer.style.display = 'block';
+            videoPlayer.style.display = 'none';
+            videoPlayer.pause();
+            initializeHLS(audioPlayer, true);
         });
 
-        // Add loaded class for smooth scaling
-        pageFrame.addEventListener('load', () => {
-            pageFrame.classList.add('loaded');
-        });
-
-        // Refresh the iframe page
-        refreshButton.addEventListener('click', () => {
-            if (pageFrame.src) {
-                pageFrame.src = pageFrame.src;
-            }
-        });
-
-        // Open the selected page in a new tab
-        visitButton.addEventListener('click', () => {
-            const selectedUrl = urlSelect.value;
-            window.open(selectedUrl, '_blank');
+        playVideoBtn.addEventListener('click', () => {
+            videoPlayer.style.display = 'block';
+            audioPlayer.style.display = 'none';
+            audioPlayer.pause();
+            initializeHLS(videoPlayer, false);
         });
     </script>
 </body>
