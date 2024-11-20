@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Background Audio/Video Player</title>
+    <title>Audio/Video Player</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         body {
@@ -25,7 +25,7 @@
     </style>
 </head>
 <body>
-    <h1>Background Audio/Video Player</h1>
+    <h1>Audio/Video Player</h1>
     <video id="videoPlayer" controls autoplay></video>
     <audio id="audioPlayer" controls style="display: none;"></audio>
     <br>
@@ -38,10 +38,8 @@
         const switchToAudioBtn = document.getElementById('switchToAudio');
         const switchToVideoBtn = document.getElementById('switchToVideo');
 
-        let audioContext, sourceNode;
-
-        // Initialize HLS for video
-        function initializeHLS(player, isAudioOnly) {
+        // Initialize HLS.js for a given player
+        function initializeHLS(player, isAudioOnly = false) {
             if (Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(videoSource);
@@ -50,13 +48,12 @@
                     player.play();
                 });
 
-                // Disable video track for audio-only mode
+                // Configure for audio-only playback
                 if (isAudioOnly) {
-                    hls.on(Hls.Events.MEDIA_ATTACHED, function () {
-                        hls.audioTrack = 0;
-                        for (let i = 0; i < hls.levels.length; i++) {
-                            hls.levels[i].details.videoCodec = undefined;
-                        }
+                    hls.on(Hls.Events.LEVEL_LOADED, function (_, data) {
+                        hls.audioTrack = 0; // Ensure the audio track is used
+                        // Disable video codecs in HLS levels for audio-only mode
+                        hls.levels.forEach((level) => (level.videoCodec = null));
                     });
                 }
             } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
@@ -65,15 +62,8 @@
             }
         }
 
-        // Initialize Audio Context for background audio
-        function playBackgroundAudio() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                sourceNode = audioContext.createMediaElementSource(audioPlayer);
-                sourceNode.connect(audioContext.destination);
-            }
-            audioPlayer.play();
-        }
+        // Default: Initialize video player
+        initializeHLS(videoPlayer, false);
 
         // Switch to Audio Only
         switchToAudioBtn.addEventListener('click', () => {
@@ -83,8 +73,8 @@
             switchToAudioBtn.style.display = 'none';
             switchToVideoBtn.style.display = 'inline-block';
 
-            // Enable Audio Context for background playback
-            playBackgroundAudio();
+            // Initialize the audio player
+            initializeHLS(audioPlayer, true);
         });
 
         // Switch to Video
@@ -95,11 +85,9 @@
             switchToAudioBtn.style.display = 'inline-block';
             switchToVideoBtn.style.display = 'none';
 
+            // Re-initialize the video player
             initializeHLS(videoPlayer, false);
         });
-
-        // Default: Initialize Video Player
-        initializeHLS(videoPlayer, false);
     </script>
 </body>
 </html>
