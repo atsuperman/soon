@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio/Video Player</title>
+    <title>Video/Audio Player</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         body {
@@ -12,15 +11,10 @@
             margin: 20px;
             text-align: center;
         }
-        video {
+        video, audio {
             width: 100%;
             max-width: 600px;
-            display: none;
-        }
-        audio {
-            width: 100%;
-            max-width: 600px;
-            display: none;
+            margin: 20px auto;
         }
         button {
             margin: 10px;
@@ -31,20 +25,20 @@
     </style>
 </head>
 <body>
-    <h1>Audio/Video Player</h1>
-    <video id="videoPlayer" controls></video>
-    <audio id="audioPlayer" controls></audio>
+    <h1>Video/Audio Player</h1>
+    <video id="videoPlayer" controls autoplay></video>
+    <audio id="audioPlayer" controls style="display: none;"></audio>
     <br>
-    <button id="playAudio">Play Audio</button>
-    <button id="playVideo">Play Video</button>
+    <button id="switchToAudio">Switch to Audio Only</button>
+    <button id="switchToVideo" style="display: none;">Switch to Video</button>
     <script>
         const videoSource = "https://d2q8p4pe5spbak.cloudfront.net/bpk-tv/9XM/9XM.isml/index.m3u8";
         const videoPlayer = document.getElementById('videoPlayer');
         const audioPlayer = document.getElementById('audioPlayer');
-        const playAudioBtn = document.getElementById('playAudio');
-        const playVideoBtn = document.getElementById('playVideo');
+        const switchToAudioBtn = document.getElementById('switchToAudio');
+        const switchToVideoBtn = document.getElementById('switchToVideo');
 
-        // Function to initialize HLS playback
+        // Initialize HLS for a given player
         function initializeHLS(player, isAudioOnly) {
             if (Hls.isSupported()) {
                 const hls = new Hls();
@@ -54,11 +48,11 @@
                     player.play();
                 });
 
-                // Disable video track if playing audio-only
+                // Disable video track for audio-only mode
                 hls.on(Hls.Events.MEDIA_ATTACHED, function () {
                     if (isAudioOnly) {
                         hls.subtitleTrack = -1; // Disable subtitles
-                        hls.audioTrack = 0;    // Select the first audio track
+                        hls.audioTrack = 0;    // Use only the audio track
                         for (let i = 0; i < hls.levels.length; i++) {
                             hls.levels[i].details.videoCodec = undefined;
                         }
@@ -70,18 +64,26 @@
             }
         }
 
-        // Event listeners
-        playAudioBtn.addEventListener('click', () => {
-            audioPlayer.style.display = 'block';
-            videoPlayer.style.display = 'none';
+        // Default: Initialize Video Player
+        initializeHLS(videoPlayer, false);
+
+        // Switch to Audio Only
+        switchToAudioBtn.addEventListener('click', () => {
             videoPlayer.pause();
+            videoPlayer.style.display = 'none';
+            audioPlayer.style.display = 'block';
+            switchToAudioBtn.style.display = 'none';
+            switchToVideoBtn.style.display = 'inline-block';
             initializeHLS(audioPlayer, true);
         });
 
-        playVideoBtn.addEventListener('click', () => {
-            videoPlayer.style.display = 'block';
-            audioPlayer.style.display = 'none';
+        // Switch to Video
+        switchToVideoBtn.addEventListener('click', () => {
             audioPlayer.pause();
+            audioPlayer.style.display = 'none';
+            videoPlayer.style.display = 'block';
+            switchToAudioBtn.style.display = 'inline-block';
+            switchToVideoBtn.style.display = 'none';
             initializeHLS(videoPlayer, false);
         });
     </script>
