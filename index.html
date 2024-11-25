@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>9xm Player</title>
+    <title>Audio Always Playing</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         body {
@@ -11,108 +11,64 @@
             margin: 20px;
             text-align: center;
         }
-        video, audio {
-            width: 100%;
-            max-width: 600px;
-            margin: 20px auto;
-        }
         button {
             margin: 10px;
             padding: 10px 20px;
-            cursor: pointer;
             font-size: 16px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>9XM</h1>
-    <video id="videoPlayer" controls autoplay></video>
-    <audio id="audioPlayer" controls style="display: none;"></audio>
-    <br>
-    <button id="switchToAudio">Switch to Audio Only</button>
-    <button id="switchToVideo" style="display: none;">Switch to Video</button>
+    <h1>Audio Always Playing</h1>
+    <button id="startAudio">Start Audio</button>
+    <button id="stopAudio">Stop Audio</button>
     <script>
-        const videoSource = "https://d2q8p4pe5spbak.cloudfront.net/bpk-tv/9XM/9XM.isml/index.m3u8";
-        const videoPlayer = document.getElementById('videoPlayer');
-        const audioPlayer = document.getElementById('audioPlayer');
-        const switchToAudioBtn = document.getElementById('switchToAudio');
-        const switchToVideoBtn = document.getElementById('switchToVideo');
+        let audioContext, audioElement, audioSource;
 
-        // Keep the audio context active
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        // HLS audio stream
+        const audioStreamURL = "https://d2q8p4pe5spbak.cloudfront.net/bpk-tv/9XM/9XM.isml/index.m3u8";
 
-        // Initialize HLS.js for a given player
-        function initializeHLS(player, isAudioOnly = false) {
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(videoSource);
-                hls.attachMedia(player);
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    player.play();
+        document.getElementById("startAudio").addEventListener("click", async () => {
+            if (!audioContext) {
+                // Create audio context
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                audioElement = new Audio(audioStreamURL);
+                audioElement.crossOrigin = "anonymous";
+
+                // Create audio source node
+                audioSource = audioContext.createMediaElementSource(audioElement);
+                audioSource.connect(audioContext.destination);
+
+                // Play audio
+                await audioContext.resume();
+                audioElement.play().catch((error) => {
+                    console.error("Audio play error:", error);
                 });
 
-                // Configure for audio-only playback
-                if (isAudioOnly) {
-                    hls.on(Hls.Events.LEVEL_LOADED, function (_, data) {
-                        hls.audioTrack = 0; // Ensure the audio track is used
-                        hls.levels.forEach((level) => (level.videoCodec = null));
-                    });
-                }
-            } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
-                player.src = videoSource;
-                player.play();
-            }
-        }
-
-        // Default: Initialize video player
-        initializeHLS(videoPlayer, false);
-
-        // Switch to Audio Only
-        switchToAudioBtn.addEventListener('click', () => {
-            videoPlayer.pause();
-            videoPlayer.style.display = 'none';
-            audioPlayer.style.display = 'block';
-            switchToAudioBtn.style.display = 'none';
-            switchToVideoBtn.style.display = 'inline-block';
-
-            // Initialize the audio player
-            initializeHLS(audioPlayer, true);
-        });
-
-        // Switch to Video
-        switchToVideoBtn.addEventListener('click', () => {
-            audioPlayer.pause();
-            audioPlayer.style.display = 'none';
-            videoPlayer.style.display = 'block';
-            switchToAudioBtn.style.display = 'inline-block';
-            switchToVideoBtn.style.display = 'none';
-
-            // Re-initialize the video player
-            initializeHLS(videoPlayer, false);
-        });
-
-        // Ensure audio/video continues playing in the background
-        document.addEventListener('visibilitychange', function () {
-            if (!document.hidden) {
-                // Resume playback if paused unintentionally
-                if (videoPlayer.style.display !== 'none' && videoPlayer.paused) {
-                    videoPlayer.play();
-                } else if (audioPlayer.style.display !== 'none' && audioPlayer.paused) {
-                    audioPlayer.play();
-                }
+                console.log("Audio started");
             }
         });
 
-        // Resume AudioContext when browser minimizes
-        document.addEventListener('visibilitychange', () => {
-            if (audioContext.state === "suspended") {
+        document.getElementById("stopAudio").addEventListener("click", () => {
+            if (audioElement) {
+                audioElement.pause();
+                console.log("Audio stopped");
+            }
+        });
+
+        // Resume audio context when browser regains focus
+        document.addEventListener("visibilitychange", () => {
+            if (audioContext && audioContext.state === "suspended") {
                 audioContext.resume();
+                console.log("Audio context resumed");
             }
         });
 
-        window.addEventListener('focus', () => {
-            if (audioContext.state === "suspended") {
+        window.addEventListener("focus", () => {
+            if (audioContext && audioContext.state === "suspended") {
                 audioContext.resume();
+                console.log("Audio context resumed on focus");
             }
         });
     </script>
