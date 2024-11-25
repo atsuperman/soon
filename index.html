@@ -38,6 +38,9 @@
         const switchToAudioBtn = document.getElementById('switchToAudio');
         const switchToVideoBtn = document.getElementById('switchToVideo');
 
+        // Keep the audio context active
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
         // Initialize HLS.js for a given player
         function initializeHLS(player, isAudioOnly = false) {
             if (Hls.isSupported()) {
@@ -88,7 +91,7 @@
             initializeHLS(videoPlayer, false);
         });
 
-        // Ensure audio/video continues playing when window is minimized
+        // Ensure audio/video continues playing in the background
         document.addEventListener('visibilitychange', function () {
             if (!document.hidden) {
                 // Resume playback if paused unintentionally
@@ -97,6 +100,19 @@
                 } else if (audioPlayer.style.display !== 'none' && audioPlayer.paused) {
                     audioPlayer.play();
                 }
+            }
+        });
+
+        // Resume AudioContext when browser minimizes
+        document.addEventListener('visibilitychange', () => {
+            if (audioContext.state === "suspended") {
+                audioContext.resume();
+            }
+        });
+
+        window.addEventListener('focus', () => {
+            if (audioContext.state === "suspended") {
+                audioContext.resume();
             }
         });
     </script>
